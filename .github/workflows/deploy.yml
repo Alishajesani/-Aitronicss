@@ -18,26 +18,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "npm"
+          node-version: 22   # React 19 + Vite 5 work great on Node 22
+          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      # If your repo has package-lock.json, keep npm ci.
+      # If it doesn't, swap this line to: npm install
+      - run: npm ci
 
-      - name: Build
-        run: npm run build
+      - run: npm run build
 
-      - name: Add 404 for SPA routing
-        run: cp dist/index.html dist/404.html
+      # SPA fallback so refresh on client routes works
+      - run: cp dist/index.html dist/404.html
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
@@ -48,6 +45,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
